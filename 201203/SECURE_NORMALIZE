@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# SECURE_NORMALIZE secureログの正規化
+#
+# usage: ./SECURE_NORMALIZE 
+# written by R. Ueda (USP研究所) Dec. 30, 2011
+
+dir=/home/ueda/WEB/GIHYO
+tmp=/tmp/$$
+today=$(date +%Y%m%d)
+
+cd $dir/LOG
+cp secure $tmp-$today
+
+awk '{print FILENAME,$0}' secure-* $tmp-$today	|
+sed -e 's/^[^-]*-//'				|
+sed -e 's/^..../& /'				|
+#1:ファイル年 2:ファイル月日 3:ログの内容
+#出力例：2011 1230 Dec 30 13:40:06 cent su: pam_u
+#月だけ頭に出して英語表記を数字表記に変える
+awk '{print $3,$0}'				|
+#1:ログ月 2:ファイル年 3:ファイル月日 4:ログの内容
+sed -f $dir/SYS/MONTH -				|
+#ログから日付を持ってきてログ月にくっつける
+#日が一桁のことがあるので二桁に
+awk '{gsub(/^.$/,"0&",$5);$1=$1$5;print}'	|
+#1:ログ月日 2:ファイル年 3:ファイル月日 4:ログの内容
+#ログの月日がファイルの月日より後なら昨年のデータ
+awk '{if($1>$3){$2--};print}'			|
+#1:ログ月日 2:ログ年 3:ファイル月日 4:ログの内容
+#出力例：0911 2011 1012 Sep 11 19:17:44 localhost 
+awk '{$1=$2$1;$2="";$3="";$4="";$5="";print}'	|
+#日付の後に無駄なスペースがたくさん入るので消す
+sed -e 's/  */ /'	> $dir/LOG/SECURE_LOG
+
+rm -f $tmp-*
+exit 0
