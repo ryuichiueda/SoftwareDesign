@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head><meta charset="UTF-8" /></head>
+	<body>
+		<div>訪問数</div>
+		<svg style="height:1000px;width:400px;font-size:12px">
+<!--VALUEAXIS-->
+			<!--背景帯-->
+			<rect stroke="black" x="%2" y="20" width="15" height="1000" 
+				style="fill:lightgray;stroke:none" />
+			<!--軸目盛-->
+			<line stroke="black" x1="%2" y1="15" x2="%2" y2="20" />
+			<!--目盛ラベル-->
+			<text x="%3" y="10">%1</text>
+<!--VALUEAXIS-->
+			<!--横軸-->
+			<line stroke="black" x1="50" y1="20" x2="350" y2="20" />
+
+
+<!--TIMEAXIS-->
+			<!--目盛-->
+			<line x1="45" y1="%1" x2="350" y2="%1" 
+				style="stroke:white;stroke-width:1px" />
+			<!--目盛ラベル-->
+			<text x="0" y="%1">%2日0時</text>
+<!--TIMEAXIS-->
+			<!--縦軸-->
+			<line stroke="black" x1="50" y1="20" x2="50" y2="1000" />
+<!-- VISITS -->
+			<!--値グラフ-->
+			<line x1="50" y1="%1" x2="%2" y2="%1" stroke-opacity="0.6" 
+				style="stroke:red;stroke-width:2px" />
+<!-- VISITS -->
+		</svg>
+	</body>
+</html>

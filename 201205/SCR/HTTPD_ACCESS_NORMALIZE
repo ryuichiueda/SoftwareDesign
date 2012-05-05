@@ -1,0 +1,23 @@
+#!/bin/bash -vx
+# HTTPD_ACCESS_NORMALIZE: access_log整理
+# written by R.Ueda (r-ueda@usp-lab.com) Feb. 25, 2012
+
+dir=/home/hoge/WWW/WEB_KAISEKI
+
+cd /home/hoge/LOG || exit 1
+echo access_log*.gz					|
+xargs zcat						|
+cat - access_log					|
+sed 's/""/"-"/g'					|
+sed 's/\(..*\) \(..*\) \(..*\) \[\(..*\)\] "\(..*\)" \(..*\) \(..*\) "\(..*\)" "\(..*\)"$/\1あ\2あ\3あ\4あ\5あ\6あ\7あ\8あ\9/'	|
+sed -e 's/_/＿/g' -e 's/ /_/g' -e 's/あ/ /g'		|
+#1:IP 2,3:id 4:日時 5-9:リクエスト以降
+self 4.4.3 4.1.2 4.8.4 4.13.8 1/3 5/NF			|
+#1:月 2:日 3:年 4:時:分:秒 5:IP 6,7:id 8-12:リクエスト以降
+sed -f $dir/SCR/MONTH					|
+#↑参考：https://github.com/ryuichiueda/SoftwareDesign/blob/master/201202/MONTH.sed
+#時分秒のコロンを取る
+awk '{gsub(/:/,"",$4);print}'				|
+awk '{print $3$1$2,$4,$5,$6,$7,$8,$9,$10,$11,$12}'	|
+#1:年月日 2:時分秒 3:IP 4,5:id 6:リクエスト以降
+sort -s -k1,2 > $dir/TMP/ACCESS_LOG

@@ -1,0 +1,28 @@
+#!/bin/bash
+# COUNT.HIT_FILE_SITE.HOUR: 主要5統計値の時間別集計
+# written by R.Ueda (r-ueda@usp-lab.com)
+
+cd /home/hoge/WWW/WEB_KAISEKI/TMP
+#####################################
+#ヒット数
+self 1 2.1.2 ACCESS_LOG	|
+#1:年月日 2:時
+count 1 2 > HITS.HOUR
+#1:年月日 2:時 3:数
+
+#####################################
+#ファイル数
+awk '$7==200' ACCESS_LOG	|
+self 1 2.1.2			|
+#1:IP 2:時
+count 1 2 > FILES.HOUR
+#1:年月日 2:時 3:数
+
+#####################################
+#サイト数（時間別）
+self 1 2.1.2 3 ACCESS_LOG	|
+#1:日付 2:時 3:IP
+uniq				|
+sort -su			|
+count 1 2 > SITES.HOUR
+#1:年月日 2:時 3:数

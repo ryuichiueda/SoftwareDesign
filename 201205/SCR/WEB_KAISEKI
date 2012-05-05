@@ -1,0 +1,11 @@
+#!/bin/bash -vx
+
+export LANG=ja_JP.UTF-8
+export PATH=/home/TOOL:$PATH
+
+dir=/home/hoge/WWW/WEB_KAISEKI/SCR
+
+$dir/HTTPD_ACCESS_NORMALIZE 
+$dir/COUNT.PAGE_VISIT.HOUR
+$dir/COUNT.HIT_FILE_SITE.HOUR
+$dir/HTMLMAKE

@@ -1,0 +1,43 @@
+#!/bin/bash
+# COUNT.HOUR: 主要5統計値の時間別集計
+# written by R.Ueda (r-ueda@usp-lab.com)
+
+tmp=/tmp/$$
+cd /home/hoge/WWW/WEB_KAISEKI/TMP
+#####################################
+#ページ数
+#集計対象のリクエスト↓
+#GET_//*[?...]_HTTP/n.m
+#GET_/.*/TOMONOKAI＿CMS.CGI[?...]_HTTP/n.m
+
+#ステイタス200、メソッドGETのデータだけ
+awk '$7==200 && $6~/^GET/' ACCESS_LOG	|
+self 1/3 6				|
+#1:年月日 2:時分秒 3:IP 4:リクエスト
+#プロトコルや?以降の文字列を削る
+sed -e 's;_HTTP/.*$;;' -e 's;\?.*$;;'	|
+egrep 'GET_//*$|TOMONOKAI＿CMS\.CGI$'	|
+tee $tmp-pages				|
+self 1 2.1.2				|
+count 1 2 > PAGES.HOUR
+
+#####################################
+#訪問数
+
+#1:年月日 2:時分秒 3:IP 4:リクエスト
+self 3 1 2 2.1.2 2.3.2 $tmp-pages	|
+#1:IP 2:年月日 3:時分秒 4:時 5:分
+#$4,$5を分に換算（頭にゼロがあっても大丈夫）
+awk '{print $1,$2,$3,$4*60+$5}'		|
+#1:IP 2:年月日 3:時分秒 4:分
+#IP、年月日、時分秒でソートする
+sort -k1,3 -s				|
+awk '{if(ip!=$1||day!=$2||$4-tm>=30){
+	print;ip=$1;day=$2;tm=$4}}'	|
+self 2 3.1.2 1				|
+#1:年月日 2:時 3:IP
+sort -k1,2 -s				|
+count 1 2 > VISITS.HOUR
+
+rm -f $tmp-*
+exit 0

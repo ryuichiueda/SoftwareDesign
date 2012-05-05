@@ -1,0 +1,29 @@
+#!/bin/bash -vx
+
+tmp=/home/hoge/tmp/$$
+dir=/home/hoge/WWW/WEB_KAISEKI
+
+###データ採取
+tac $dir/TMP/VISITS.HOUR > $tmp-data
+
+###数値軸
+seq 0 9					|
+awk '{print $1*10,$1*30+50,$1*30+45}' > $tmp-vaxis
+#1:ラベル 2:目盛座標 3:文字列座標
+
+###時間軸
+#1:日付 2:時 3:数
+awk '$2=="00"{print NR*2+20,$1}' $tmp-data	|
+self 1 2.7	> $tmp-taxis
+#1:縦座標 2:日付
+
+###訪問数
+#1:日付 2:時 3:数
+awk '{print NR*2+20,$3*3+50}' $tmp-data		|
+#1:縦座標 2:値
+mojihame -lVISITS $dir/HTML/TEMPLATE.HTML -	|
+mojihame -lVALUEAXIS - $tmp-vaxis		|
+mojihame -lTIMEAXIS - $tmp-taxis	> /home/hoge/WWW/TOMONOKAI_CMS/HTML/visits.html
+
+rm -f $tmp-*
+exit 0
