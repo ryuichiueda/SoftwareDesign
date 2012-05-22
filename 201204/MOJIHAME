@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cat << FIN > ./temp
+長者番付
+AAA
+%1位 %2さん 納税額%3円 
+AAA
+FIN
+
+cat << FIN > ./data
+1 松浦 12
+2 濱田 8
+3 上田 5
+FIN
+
+mojihame -lAAA ./temp ./data

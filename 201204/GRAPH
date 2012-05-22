@@ -1,0 +1,37 @@
+#!/bin/bash -vx
+tmp=/tmp/$$
+
+#1:順位 2:選手 3:本塁打 4:FROM 5:TO 6:試合 7:打数
+#ヘッダを削る
+tail -n +2 ./HOMER	|
+#上位10傑
+head			|
+awk '{wid=$3/2;print $2,$3,NR*24,NR*24+16,wid+95,wid}' > $tmp-data
+#1:選手名 2:本塁打数 3:グラフ左上y座標 4:字左下y座標
+#5:本塁打数文字右端位置 6:グラフ幅
+
+#テンプレートを準備
+cat << EOF > $tmp-template
+<!DOCTYPE html>
+<html>
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <svg style="height:500px;width:800px;font-size:16px">
+<!-- RECORDS -->
+      <text x="10" y="%4">%1</text>
+      <rect x="100" y="%3" width="%6" height="20"
+        fill="white" stroke="black" />
+      <text x="%5" y="%4" style="text-anchor:end">%2</text>
+<!-- RECORDS -->
+</svg>
+</body>
+</html>
+EOF
+
+#レコードをテンプレートに流し込む
+mojihame -lRECORDS $tmp-template $tmp-data > $tmp-html
+#表示
+firefox $tmp-html
+
+rm -f $tmp-*
+exit 0

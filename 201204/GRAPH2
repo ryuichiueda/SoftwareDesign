@@ -1,0 +1,72 @@
+#!/bin/bash -vx
+tmp=/tmp/$$
+
+###################################################
+#縦軸
+seq 1 6				|
+awk '{print $1*100+250}'	> $tmp-years
+
+###################################################
+#横軸
+
+#1:順位 2:選手 3:本塁打 4:FROM 5:TO 6:試合 7:打数
+#ヘッダを削る
+tail -n +2 ./HOMER	|
+#上位10傑
+awk '{print $2,$4,$5,NR*30, \
+	($4-1950)*10+250,($5-1950)*10+250,
+	NR*30-2,$3,$1}'	> $tmp-data
+#1:選手名 2:from 3:to 4:グラフy位置
+#5:グラフ始点 6:グラフ終点
+#7:文字y位置 8:本塁打数 9:順位
+
+
+#テンプレートを準備
+cat << EOF > $tmp-template
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>通算本塁打と稼働期間</title>
+	</head>
+	<body>
+		<h1 style="font-size:20px">通算本塁打と稼働期間</h1>
+		<svg style="width:1024px;height:1000px;font-size:16px">
+<!-- RULER -->
+			<line x1="%1" y1="0" x2="%1" y2="1000"
+				style="stroke:gray;stroke-width:1pt;stroke-dasharray:5,5;" />
+<!-- RULER -->
+<!-- RECORDS -->
+			<text x="40" y="%7" style="text-anchor:end">
+				%9:
+			</text>
+			<text x="50" y="%7">
+				%1
+			</text>
+			<text x="180" y="%7" style="font-size:14px;font-style:italic">
+				本塁打: %8本
+			</text>
+			<text x="%5" y="%7" style="text-anchor:begin;font-size:14px">
+				%2年
+			</text>
+			<text x="%6" y="%7" style="text-anchor:end;font-size:14px">
+				%3年
+			</text>
+			<line x1="10" y1="%4" x2="900" y2="%4"
+				style="stroke:gray;stroke-width:1pt" />
+			<line x1="%5" y1="%4" x2="%6" y2="%4"
+				style="stroke:black;stroke-width:3pt" />
+<!-- RECORDS -->
+		</svg>
+	</body>
+</html>
+EOF
+
+#レコードをテンプレートに流し込む
+mojihame -lRECORDS $tmp-template $tmp-data	|
+mojihame -lRULER - $tmp-years			> $tmp-html
+#表示
+firefox $tmp-html
+
+rm -f $tmp-*
+exit 0
